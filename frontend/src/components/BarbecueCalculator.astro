@@ -5,6 +5,23 @@ import { DURATION_RULES, MEATS, DEFAULTS } from "../config/bbqConfig.js";
 type Meat = { id: string; label: string; defaultWeight: number; group?: string };
 const meats = MEATS as unknown as Meat[];
 
+const totalW = meats.reduce((acc, m) => acc + (m.defaultWeight ?? 1), 0) || 1;
+
+// shares iniciais (inteiros) somando 100
+const defaultShares: Record<string, number> = {};
+let running = 0;
+meats.forEach((m, idx) => {
+  const raw = Math.round(((m.defaultWeight ?? 1) / totalW) * 100);
+  defaultShares[m.id] = raw;
+  running += raw;
+});
+// ajusta a última pra fechar 100
+if (meats.length) {
+  const last = meats[meats.length - 1].id;
+  defaultShares[last] += (100 - running);
+}
+
+
 const titleText = "Calculadora de Churrasco 2000";
 const titleChars = [...titleText];
 const lettersOnly = titleChars.filter((c) => c !== " ");
@@ -78,24 +95,35 @@ let li = 0;
 
           <div class={styles.meatGrid}>
             {meats.map((m) => (
-              <div class={styles.meatRow}>
+              <div class={styles.meatRow} data-meat-row data-meat-id={m.id}>
                 <label class={styles.toggle}>
                   <input type="checkbox" data-meat-check value={m.id} checked />
                   {m.label}
                 </label>
-
                 <label class={styles.meatWeightLabel}>
-                  Peso
-                  <input
-                    class={`${styles.input} ${styles.inputSmall}`}
-                    data-meat-weight
-                    data-meat-id={m.id}
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={m.defaultWeight}
-                  />
+                  Preferência
+                  <div class={styles.shareCtrl}>
+                    <input
+                      class={styles.range}
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={defaultShares[m.id] ?? 0}
+                      data-meat-share
+                      data-meat-id={m.id}
+                      aria-label={`Preferência ${m.label}`}
+                    />
+                    <span class={styles.sharePct} data-meat-share-value data-meat-id={m.id}>
+                      {(defaultShares[m.id] ?? 0)}%
+                    </span>
+                  </div>
+                    <label class={styles.lockToggle}>
+                      <input type="checkbox" data-meat-lock data-meat-id={m.id} />
+                      🔒 Travar
+                    </label>
                 </label>
+
               </div>
             ))}
           </div>

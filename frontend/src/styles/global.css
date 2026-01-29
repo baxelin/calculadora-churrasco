@@ -1,0 +1,4 @@
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, Arial, sans-serif; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px; }

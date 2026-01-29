@@ -1,0 +1,59 @@
+---
+import styles from "../styles/calculator.module.css";
+---
+
+<h1 class={styles.title}>Calculadora de Churrasco</h1>
+
+<section class={styles.card} data-bbq-calculator>
+  <div class={styles.grid}>
+    <label class={styles.label}>
+      Adultos
+      <input class={styles.input} data-adults type="number" min="0" value="6" />
+    </label>
+
+    <label class={styles.label}>
+      Crianças
+      <input class={styles.input} data-kids type="number" min="0" value="2" />
+    </label>
+
+    <label class={styles.label}>
+      Duração
+      <select class={styles.input} data-hours>
+        <option value="4">Até 4h</option>
+        <option value="6">Até 6h</option>
+        <option value="8">8h ou mais</option>
+      </select>
+    </label>
+  </div>
+
+  <div class={styles.toggles}>
+    <label class={styles.toggle}>
+      <input data-include-beer type="checkbox" checked />
+      Incluir cerveja
+    </label>
+
+    <label class={styles.toggle}>
+      <input data-include-soda type="checkbox" checked />
+      Incluir refri/água
+    </label>
+  </div>
+
+  <div class={`${styles.card} ${styles.results}`}>
+    <strong>Resultado</strong>
+
+    <div class={styles.row}><span>Carne (total)</span><span data-meat-out>-</span></div>
+    <div class={styles.row}><span>Pão de alho</span><span data-bread-out>-</span></div>
+    <div class={styles.row}><span>Carvão</span><span data-coal-out>-</span></div>
+    <div class={styles.row}><span>Sal grosso</span><span data-salt-out>-</span></div>
+
+    <hr class={styles.hr} />
+
+    <div class={styles.row}><span>Cerveja</span><span data-beer-out>-</span></div>
+    <div class={styles.row}><span>Refri/Água</span><span data-soda-out>-</span></div>
+  </div>
+</section>
+
+<script>
+  import initBbqCalculator from "../scripts/BarbecueCalculator.js";
+  initBbqCalculator();
+</script>

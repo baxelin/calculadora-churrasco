@@ -1,0 +1,19 @@
+---
+import "../styles/global.css";
+
+const { title = "Calculadora de Churrasco" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main class="container">
+      <slot />
+    </main>
+  </body>
+</html>

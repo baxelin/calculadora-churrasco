@@ -1,12 +1,15 @@
+// src/scripts/barbecueCalculator.js
 import { DURATION_RULES, MEATS, DEFAULTS, BEER_CAN_ML } from "../config/bbqConfig.js";
 
 function fmtKg(g) {
   const kg = g / 1000;
   return kg.toFixed(2).replace(".", ",") + " kg";
 }
+
 function fmtUnit(n, unit) {
   return `${Math.ceil(n)} ${unit}`;
 }
+
 function fmtLiters(ml) {
   const l = ml / 1000;
   return l.toFixed(1).replace(".", ",") + " L";
@@ -18,16 +21,23 @@ function getRule(hoursId) {
 
 function getSelectedMeats(root) {
   const checks = [...root.querySelectorAll("[data-meat-check]")];
-  const selected = checks.filter((c) => c.checked).map((c) => c.value);
+  const selectedIds = checks.filter((c) => c.checked).map((c) => c.value);
 
-  if (selected.length === 0) return [];
+  if (selectedIds.length === 0) return [];
 
-  const rows = selected.map((id) => {
+  const rows = selectedIds.map((id) => {
     const meta = MEATS.find((m) => m.id === id);
     const input = root.querySelector(`[data-meat-weight][data-meat-id="${id}"]`);
     const raw = Number(input?.value ?? 0);
-    const weight = raw > 0 ? raw : (meta?.defaultWeight ?? 1);
-    return { id, label: meta?.label ?? id, weight };
+
+    const weight =
+      raw > 0 ? raw : (meta?.defaultWeight ?? 1);
+
+    return {
+      id,
+      label: meta?.label ?? id,
+      weight,
+    };
   });
 
   const sum = rows.reduce((acc, r) => acc + r.weight, 0) || 1;
@@ -52,11 +62,28 @@ function initOne(root) {
   const beerOut = q("[data-beer-out]");
   const sodaOut = q("[data-soda-out]");
 
-    const required = [adultsEl,kidsEl,hoursEl,wasteEl,beerProfileEl,includeSodaEl,meatOut,breakdownEl,breadOut,coalOut,saltOut,beerOut,sodaOut];
-    if (required.some((x) => !x)) {
-        console.error("BBQ calculator: faltando algum elemento no HTML (data-*)", { root });
-        return;
-    }
+  const resultsBox = q("[data-results-box]");
+
+  const required = [
+    adultsEl,
+    kidsEl,
+    hoursEl,
+    wasteEl,
+    beerProfileEl,
+    includeSodaEl,
+    meatOut,
+    breakdownEl,
+    breadOut,
+    coalOut,
+    saltOut,
+    beerOut,
+    sodaOut,
+  ];
+
+  if (required.some((x) => !x)) {
+    console.error("BBQ calculator: faltando algum elemento no HTML (data-*)", { root });
+    return;
+  }
 
   function calc() {
     const adults = Math.max(0, Number(adultsEl.value || 0));
@@ -69,7 +96,7 @@ function initOne(root) {
 
     meatOut.textContent = fmtKg(totalMeatG);
 
-    // Divisão “doida” (mas correta): normaliza pesos dos tipos selecionados e distribui o total
+    // Divisão proporcional pelas carnes selecionadas
     const selected = getSelectedMeats(root);
     if (selected.length === 0) {
       breakdownEl.innerHTML = `<div data-row><span>Nenhuma carne selecionada</span><span>—</span></div>`;
@@ -82,7 +109,7 @@ function initOne(root) {
         .join("");
     }
 
-    // Itens auxiliares (heurísticas simples)
+    // Itens auxiliares
     const bread = adults * DEFAULTS.breadPerAdult + kids * DEFAULTS.breadPerKid;
     const coalKg = Math.max(DEFAULTS.coalMinKg, (totalMeatG / 1000) * DEFAULTS.coalKgPerMeatKg);
     const saltG = Math.max(DEFAULTS.saltMinG, (totalMeatG / 1000) * DEFAULTS.saltGPerMeatKg);
@@ -91,7 +118,7 @@ function initOne(root) {
     coalOut.textContent = coalKg.toFixed(1).replace(".", ",") + " kg";
     saltOut.textContent = Math.ceil(saltG) + " g";
 
-    // Bebidas
+    // Cerveja (depende do perfil)
     const beerProfile = beerProfileEl.value; // none/light/medium/heavy
     if (beerProfile === "none") {
       beerOut.textContent = "—";
@@ -101,12 +128,22 @@ function initOne(root) {
       beerOut.textContent = `${fmtLiters(beerMl)} (~${cans} latas de 350ml)`;
     }
 
+    // Refri/água
     const people = adults + kids;
     const sodaMl = includeSodaEl.checked ? people * rule.sodaPersonMl : 0;
     sodaOut.textContent = includeSodaEl.checked ? fmtLiters(sodaMl) : "—";
+
+    // “pop” visual quando recalcula
+    if (resultsBox) {
+      resultsBox.dataset.pulse = "1";
+      window.clearTimeout(resultsBox._pulseTimer);
+      resultsBox._pulseTimer = window.setTimeout(() => {
+        delete resultsBox.dataset.pulse;
+      }, 220);
+    }
   }
 
-  // Eventos
+  // Recalcula em qualquer alteração dentro do componente
   root.querySelectorAll("input, select").forEach((el) => {
     el.addEventListener("input", calc);
     el.addEventListener("change", calc);

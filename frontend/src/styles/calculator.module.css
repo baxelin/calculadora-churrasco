@@ -1,146 +1,386 @@
+/* ===== TÍTULO (onda + gradiente) ===== */
 .title{
-  margin: 0 0 14px;
-  font-size: clamp(34px, 5vw, 54px);
-  font-weight: 900;
+  margin: 0 0 10px;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 1000;
   letter-spacing: -1px;
-  line-height: 1;
+  line-height: 1.05;
 
-  /* gradiente no texto */
   background: linear-gradient(90deg, #ff6a00 0%, #ff00c8 45%, #00e5ff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 
-  /* “contorno”/impacto */
   filter:
-    drop-shadow(4px 4px 0 rgba(255,255,255,.85))
+    drop-shadow(4px 4px 0 rgba(255,255,255,.90))
     drop-shadow(2px 2px 0 rgba(0,0,0,.35));
 }
 
 .letter{
-  display: inline-block;
+  display:inline-block;
   transform-origin: 50% 85%;
-  animation: waveScale 3s ease-in-out infinite;
+  animation: waveScale 1.25s ease-in-out infinite;
   animation-delay: calc(var(--i) * 0.06s);
 }
-
-.space{ display: inline-block; width: .35em; }
+.space{ display:inline-block; width:.35em; }
 
 @keyframes waveScale{
   0%,100%{ transform: translateY(0) scaleY(1); }
-  50%{ transform: translateY(-4px) scaleY(1.38); }
+  50%{ transform: translateY(-3px) scaleY(1.32); }
 }
 
 @media (prefers-reduced-motion: reduce){
-  .letter{ animation: none; }
+  .letter{ animation:none; }
 }
 
+/* ===== APP / ESTADOS ===== */
+.app{
+  height: calc(100vh - 90px);
+  display: grid;
+  position: relative;
+}
 
-.card{
+.app[data-state="idle"]{
+  place-items: center;
+}
+
+.app[data-state="done"]{
+  place-items: stretch;
+}
+
+@media (max-width: 980px){
+  .app{ height: auto; }
+}
+
+/* ===== OVERLAY LOADER (CENTRO) ===== */
+.loaderOverlay{
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: none;              /* padrão: escondido */
+  place-items: center;
+}
+
+.loaderOverlay:not([hidden]){
+  display: grid;
+  background: rgba(0,0,0,.15); /* só uma fumacinha */
+  backdrop-filter: blur(2px);
+}
+
+.loaderCard{
+  width: min(520px, 92vw);
   border: 4px solid rgba(0,0,0,.85);
   border-radius: 18px;
   padding: 16px;
-  box-shadow:
-    8px 10px 0 rgba(0,0,0,.25),
-    0 0 0 6px rgba(255,255,255,.25) inset;
-  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
-  position: relative;
-  overflow: hidden;
+  background: rgba(255,255,255,.86);
+  box-shadow: 12px 14px 0 rgba(0,0,0,.18);
 }
 
-/* “stickers” no card principal */
+.loaderHint{
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 900;
+  opacity: .85;
+}
+
+/* ===== GRID PRINCIPAL ===== */
+.appGrid{
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+  align-items: start;
+}
+
+/* idle: só 1 coluna e centralizado */
+.app[data-state="idle"] .appGrid{
+  grid-template-columns: 1fr;
+  max-width: 900px;
+}
+
+/* done: 2 colunas */
+.app[data-state="done"] .appGrid{
+  grid-template-columns: 1.15fr .85fr;
+}
+
+/* idle: esconde direita */
+.app[data-state="idle"] .right{ display:none; }
+
+/* done: direita vira pilha */
+.right{
+  display: grid;
+  gap: 12px;
+}
+
+.left, .right{ min-width: 0; }
+
+/* sem scroll da página; se precisar, scroll interno (quase nunca) */
+@media (min-width: 980px){
+  .left, .right{
+    max-height: calc(100vh - 130px);
+    overflow: auto;
+    scrollbar-width: none;
+  }
+  .left::-webkit-scrollbar,
+  .right::-webkit-scrollbar{ display:none; }
+}
+
+/* ===== CARDS ===== */
+.card{
+  border: 4px solid rgba(0,0,0,.85);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255,255,255,.86);
+  box-shadow: 10px 12px 0 rgba(0,0,0,.18);
+  position: relative;
+}
+
 .card::before{
-  content: "🔥🥩🍺";
-  position: absolute;
+  content:"🔥🥩🍺";
+  position:absolute;
   top: 10px;
   right: 12px;
-  font-size: 22px;
-  transform: rotate(8deg);
-  filter: drop-shadow(2px 2px 0 rgba(0,0,0,.25));
+  font-size: 20px;
+  transform: rotate(6deg);
   opacity: .95;
-}
-.card::after{
-  content: "";
-  position: absolute;
-  inset: -40px;
-  background:
-    repeating-linear-gradient(45deg,
-      rgba(255, 0, 200, .10) 0 12px,
-      rgba(0, 229, 255, .10) 12px 24px,
-      rgba(255, 230, 0, .10) 24px 36px);
-  transform: rotate(-2deg);
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  opacity: .55;
+  filter: drop-shadow(2px 2px 0 rgba(0,0,0,.18));
 }
 
+/* ===== FORM ===== */
 .grid{
   display:grid;
-  gap: 12px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.grid2{
-  margin-top: 12px;
-  display:grid;
-  gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   align-items: end;
 }
 
-.label{ display:grid; gap: 6px; font-weight: 700; }
+@media (max-width: 720px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
+.label{
+  display:grid;
+  gap: 6px;
+  font-weight: 900;
+}
 
 .input{
+  height: 44px;
   padding: 10px 12px;
   font-size: 16px;
   border-radius: 14px;
   border: 3px solid rgba(0,0,0,.85);
   background: rgba(255,255,255,.95);
-  box-shadow: 4px 4px 0 rgba(0,0,0,.15);
-  transition: transform .08s ease, box-shadow .08s ease, filter .08s ease;
+  box-shadow: 5px 5px 0 rgba(0,0,0,.12);
 }
 
-.input:focus{
-  outline: none;
-  transform: translateY(-1px);
-  box-shadow: 6px 6px 0 rgba(0,0,0,.20);
-  filter: saturate(1.25);
+/* spinners dos numbers NÃO SUMIREM */
+input[type="number"]{
+  appearance: auto;
+  -moz-appearance: auto;
+  padding-right: 34px; /* espaço pro spinner */
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button{
+  opacity: 1;
+  height: auto;
 }
 
-.toggles{
+/* ===== CARNES (SEM CATEGORIA) ===== */
+.meats{
   margin-top: 12px;
+  display:grid;
+  gap: 10px;
+}
+
+.meatsHeader{
   display:flex;
-  gap: 12px;
-  align-items:center;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.meatsHint{
+  font-size: 12px;
+  font-weight: 800;
+  opacity: .85;
+}
+
+.meatGrid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  padding-right: 14px; /* margem extra na direita */
+}
+
+
+@media (max-width: 720px){
+  .meatGrid{ grid-template-columns: 1fr; }
+}
+
+.meatRow{
+  display:grid;
+  grid-template-columns: 1fr 140px; /* coluna do peso fixa */
+  gap: 10px;
+  align-items: center;
+
+  padding: 10px;
+  border-radius: 16px;
+  border: 3px solid rgba(0,0,0,.85);
+  background: rgba(255,255,255,.72);
+  box-shadow: 6px 6px 0 rgba(0,0,0,.10);
 }
 
 .toggle{
   display:flex;
   align-items:center;
-  gap: 8px;
-  font-weight: 800;
-  background: rgba(255,255,255,.65);
-  border: 3px dashed rgba(0,0,0,.75);
-  padding: 10px 12px;
+  gap: 10px;
+  font-weight: 950;
+}
+
+.toggle input{
+  width: 18px;
+  height: 18px;
+}
+
+/* Peso escondido até calcular */
+.meatWeightLabel{
+  display:none;
+  grid-template-columns: 1fr;
+  justify-items: end;
+  gap: 6px;
+  font-weight: 950;
+  min-width: 0; /* importante: não força crescer */
+}
+
+.inputSmall{
+  width: 120px;       /* trava largura */
+  max-width: 120px;
+  height: 40px;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.app[data-state="done"] .meatWeightLabel{ display:grid; }
+
+/* ===== BOTÃO ===== */
+.actions{
+  margin-top: 12px;
+  display:flex;
+  justify-content:center;
+
+  position: sticky;
+  bottom: 10px;
+  padding-top: 10px;
+  background: linear-gradient(0deg, rgba(255,255,255,.95) 60%, rgba(255,255,255,0));
+  z-index: 2;
+}
+
+
+.calcBtn{
+  cursor:pointer;
+  border: 4px solid rgba(0,0,0,.90);
   border-radius: 999px;
+  padding: 12px 20px;
+  font-size: 18px;
+  font-weight: 1000;
+
+  color: #fff;
+  -webkit-text-stroke: 1px rgba(0,0,0,.85);
+  text-shadow: 2px 2px 0 rgba(0,0,0,.85);
+
+  background: #eb8dd6; /* bem menos carnaval */
+  box-shadow: 10px 10px 0 rgba(0,0,0,.18);
+  transition: transform .08s ease, filter .08s ease;
+}
+
+.calcBtn:hover{ transform: translateY(-1px) rotate(-.2deg); filter: saturate(1.05); }
+.calcBtn:active{ transform: translateY(1px); }
+
+
+/* ===== LOADER UI ===== */
+.emojiRow{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content:center;
+  margin-bottom: 10px;
+}
+
+.emojiRow [data-emoji-seg]{
+  font-size: 20px;
+  opacity: .30;
+  transform: translateY(2px) scale(.95);
+  transition: opacity .12s ease, transform .12s ease, filter .12s ease;
+}
+
+.emojiRow [data-emoji-seg][data-on="1"]{
+  opacity: 1;
+  transform: translateY(0) scale(1.08);
+  filter: drop-shadow(2px 2px 0 rgba(0,0,0,.18));
+}
+
+.progressWrap{
+  display:grid;
+  gap: 8px;
+  justify-items:center;
+}
+
+.bigEmoji{
+  font-size: 34px;
+  animation: bigEmojiBop .45s ease-in-out infinite alternate;
+}
+@keyframes bigEmojiBop{
+  from{ transform: translateY(0) rotate(-4deg); }
+  to{ transform: translateY(-4px) rotate(4deg); }
+}
+
+.progressBar{
+  width: 100%;
+  height: 18px;
+  border-radius: 999px;
+  border: 3px solid rgba(0,0,0,.85);
+  background: rgba(255,255,255,.85);
+  overflow:hidden;
   box-shadow: 6px 6px 0 rgba(0,0,0,.12);
 }
 
-.results{
-  margin-top: 16px;
-  display:grid;
-  gap: 10px;
-  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.80));
+.progressFill{
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ff6a00, #ff00c8, #00e5ff, #ffe600);
+  transition: width .06s linear;
 }
 
-/* “pop” quando recalcula */
+.progressPct{ font-weight: 1000; }
+
+/* ===== AJUSTES + RESULTADOS ===== */
+.advancedGrid{
+  margin-top: 10px;
+  display:grid;
+  gap: 10px;
+}
+
+.toggleInline{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  font-weight: 950;
+}
+
+.results{
+  margin-top: 0;
+  display:grid;
+  gap: 10px;
+}
+
 .results[data-pulse="1"]{
   animation: pop .22s ease-out;
 }
 @keyframes pop{
   0%{ transform: scale(1); }
-  50%{ transform: scale(1.03) rotate(-.3deg); }
+  50%{ transform: scale(1.02) rotate(-.2deg); }
   100%{ transform: scale(1); }
 }
 
@@ -148,7 +388,7 @@
   display:flex;
   justify-content: space-between;
   gap: 12px;
-  font-weight: 800;
+  font-weight: 950;
 }
 
 .row span:last-child{
@@ -159,47 +399,8 @@
   box-shadow: 4px 4px 0 rgba(0,0,0,.12);
 }
 
-.hr{
-  border: none;
-  border-top: 3px dotted rgba(0,0,0,.55);
-  margin: 6px 0;
-}
-
-.meats{
-  margin-top: 16px;
-  display:grid;
-  gap: 10px;
-}
-
-.meatsHeader{
-  display:flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: baseline;
-  font-weight: 900;
-}
-
-.meatsHint{ font-size: 12px; opacity: .85; font-weight: 700; }
-
-.meatRow{
-  display:flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  padding: 10px;
-  border: 3px solid rgba(0,0,0,.85);
-  border-radius: 16px;
-  background: rgba(255,255,255,.7);
-  box-shadow: 6px 6px 0 rgba(0,0,0,.10);
-  transition: transform .08s ease;
-}
-.meatRow:hover{ transform: translateY(-1px) rotate(-.2deg); }
-
-.meatWeightLabel{ display:grid; gap: 6px; min-width: 130px; font-weight: 900; }
-.inputSmall{ padding: 8px 10px; font-size: 14px; }
-
 .breakdown{
-  margin-top: 8px;
+  margin-top: 6px;
   display:grid;
   gap: 8px;
   padding: 12px;
@@ -212,13 +413,23 @@
   display:flex;
   justify-content: space-between;
   gap: 12px;
-  font-weight: 900;
+  font-weight: 950;
 }
 
-@media (max-width: 720px){
-  .grid{ grid-template-columns: 1fr; }
-  .grid2{ grid-template-columns: 1fr; }
-  .meatsHeader{ flex-direction: column; align-items: flex-start; }
-  .meatRow{ flex-direction: column; align-items: stretch; }
-  .meatWeightLabel{ min-width: auto; }
+.hr{
+  border: none;
+  border-top: 3px dotted rgba(0,0,0,.55);
+  margin: 6px 0;
+}
+
+/* no DONE, inputs menores pra caber mais harmonioso */
+.app[data-state="done"] .input{
+  height: 40px;
+  padding: 8px 10px;
+  font-size: 15px;
+}
+
+/* e um pouco menos de padding no card de ajustes/resultados */
+.app[data-state="done"] .card{
+  padding: 10px;
 }

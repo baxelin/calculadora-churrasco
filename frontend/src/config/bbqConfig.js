@@ -11,7 +11,7 @@ export const DEFAULTS = {
   saltMinG: 100,
 };
 
-// Regras por duração (bem mais realistas pra cerveja)
+// Regras por duração
 export const DURATION_RULES = [
   {
     id: "4",
@@ -39,12 +39,13 @@ export const DURATION_RULES = [
   },
 ];
 
-// Tipos de carne + “peso” padrão (usado pra dividir o total)
 export const MEATS = [
-  { id: "picanha", label: "Picanha", defaultWeight: 3 },
-  { id: "fraldinha", label: "Fraldinha", defaultWeight: 2 },
-  { id: "contra_file", label: "Contra-filé", defaultWeight: 2 },
-  { id: "maminha", label: "Maminha", defaultWeight: 2 },
-  { id: "linguica", label: "Linguiça", defaultWeight: 2 },
-  { id: "frango", label: "Frango", defaultWeight: 1 },
+  { id: "picanha", label: "Picanha", defaultWeight: 3, group: "Bovinas" },
+  { id: "fraldinha", label: "Fraldinha", defaultWeight: 2, group: "Bovinas" },
+  { id: "contra_file", label: "Contra-filé", defaultWeight: 2, group: "Bovinas" },
+  { id: "maminha", label: "Maminha", defaultWeight: 2, group: "Bovinas" },
+  { id: "linguica", label: "Linguiça", defaultWeight: 2, group: "Outros" },
+  { id: "frango", label: "Frango", defaultWeight: 1, group: "Aves" },
+  { id: "coracao", label: "Coração de galinha", defaultWeight: 1, group: "Aves" },
+  { id: "costela", label: "Costela", defaultWeight: 2 },
 ];

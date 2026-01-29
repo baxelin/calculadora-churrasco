@@ -2,6 +2,9 @@
 import styles from "../styles/calculator.module.css";
 import { DURATION_RULES, MEATS, DEFAULTS } from "../config/bbqConfig.js";
 
+type Meat = { id: string; label: string; defaultWeight: number; group?: string };
+const meats = MEATS as unknown as Meat[];
+
 const titleText = "Calculadora de Churrasco";
 const titleChars = [...titleText];
 ---
@@ -16,117 +19,148 @@ const titleChars = [...titleText];
   )}
 </h1>
 
-<section class={styles.card} data-bbq-calculator>
-  <div class={styles.grid}>
-    <label class={styles.label}>
-      Adultos
-      <input class={styles.input} data-adults type="number" min="0" value="6" />
-    </label>
+<section class={styles.app} data-bbq-calculator data-state="idle">
+  <!-- Overlay do loader (central) -->
+  <div class={styles.loaderOverlay} data-loader-overlay hidden>
+    <div class={styles.loaderCard}>
+      <div class={styles.emojiRow} data-emoji-row aria-hidden="true"></div>
 
-    <label class={styles.label}>
-      Crianças
-      <input class={styles.input} data-kids type="number" min="0" value="2" />
-    </label>
+      <div class={styles.progressWrap}>
+        <div class={styles.bigEmoji} data-big-emoji>🔥</div>
 
-    <label class={styles.label}>
-      Duração
-      <select class={styles.input} data-hours>
-        {DURATION_RULES.map((r) => (
-          <option value={r.id}>{r.label}</option>
-        ))}
-      </select>
-    </label>
-  </div>
+        <div class={styles.progressBar}>
+          <div class={styles.progressFill} data-progress-fill></div>
+        </div>
 
-  <div class={styles.grid2}>
-    <label class={styles.label}>
-      Margem de sobra
-      <select class={styles.input} data-waste>
-        <option value="0">0%</option>
-        <option value={DEFAULTS.wastePct} selected>10%</option>
-        <option value="0.2">20%</option>
-      </select>
-    </label>
-
-    <label class={styles.label}>
-      Consumo de cerveja (por adulto)
-      <select class={styles.input} data-beer-profile>
-        <option value="none">Sem álcool</option>
-        <option value="light">Leve</option>
-        <option value="medium" selected>Médio</option>
-        <option value="heavy">Alto</option>
-      </select>
-    </label>
-
-    <label class={styles.toggle}>
-      <input data-include-soda type="checkbox" checked />
-      Incluir refri/água
-    </label>
-  </div>
-
-  <div class={styles.meats}>
-    <div class={styles.meatsHeader}>
-      <strong>Tipos de carne</strong>
-      <span class={styles.meatsHint}>Marque e ajuste o “peso” pra dividir os kg</span>
-    </div>
-
-    {MEATS.map((m) => (
-      <div class={styles.meatRow}>
-        <label class={styles.toggle}>
-          <input type="checkbox" data-meat-check value={m.id} checked />
-          {m.label}
-        </label>
-
-        <label class={styles.meatWeightLabel}>
-          Peso
-          <input
-            class={`${styles.input} ${styles.inputSmall}`}
-            data-meat-weight
-            data-meat-id={m.id}
-            type="number"
-            min="0"
-            step="1"
-            value={m.defaultWeight}
-          />
-        </label>
+        <div class={styles.progressPct} data-progress-pct>0%</div>
       </div>
-    ))}
+
+      <div class={styles.loaderHint}>Assando o cálculo…</div>
+    </div>
   </div>
 
-  <div class={`${styles.card} ${styles.results}`} data-results-box>
-    <strong>Resultado</strong>
+  <!-- Conteúdo principal -->
+  <div class={styles.appGrid} data-app-grid>
+    <!-- ESQUERDA -->
+    <div class={styles.left}>
+      <div class={styles.card}>
+        <div class={styles.grid}>
+          <label class={styles.label}>
+            Adultos
+            <input class={styles.input} data-adults type="number" min="0" value="6" />
+          </label>
 
-    <div class={styles.row}><span>Carne (total)</span><span data-meat-out>-</span></div>
+          <label class={styles.label}>
+            Crianças
+            <input class={styles.input} data-kids type="number" min="0" value="2" />
+          </label>
 
-    <div class={styles.breakdown} data-meat-breakdown>
-      <!-- preenchido via JS -->
+          <label class={styles.label}>
+            Duração
+            <select class={styles.input} data-hours>
+              {DURATION_RULES.map((r) => (
+                <option value={r.id}>{r.label}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div class={styles.meats}>
+          <div class={styles.meatsHeader}>
+            <strong>Escolha as carnes</strong>
+            <span class={styles.meatsHint}>O “peso” aparece depois do cálculo 😉</span>
+          </div>
+
+          <div class={styles.meatGrid}>
+            {meats.map((m) => (
+              <div class={styles.meatRow}>
+                <label class={styles.toggle}>
+                  <input type="checkbox" data-meat-check value={m.id} checked />
+                  {m.label}
+                </label>
+
+                <label class={styles.meatWeightLabel}>
+                  Peso
+                  <input
+                    class={`${styles.input} ${styles.inputSmall}`}
+                    data-meat-weight
+                    data-meat-id={m.id}
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={m.defaultWeight}
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class={styles.actions}>
+          <button class={styles.calcBtn} type="button" data-calc-btn>
+            Calcular! 🥩
+          </button>
+        </div>
+      </div>
     </div>
 
-    <hr class={styles.hr} />
+    <!-- DIREITA (só aparece no DONE) -->
+    <div class={styles.right}>
+      <div class={styles.card} data-advanced hidden>
+        <strong>Ajustes rápidos</strong>
 
-    <div class={styles.row}><span>Pão de alho</span><span data-bread-out>-</span></div>
-    <div class={styles.row}><span>Carvão</span><span data-coal-out>-</span></div>
-    <div class={styles.row}><span>Sal grosso</span><span data-salt-out>-</span></div>
+        <div class={styles.advancedGrid}>
+          <label class={styles.label}>
+            Margem de sobra
+            <select class={styles.input} data-waste>
+              <option value="0">0%</option>
+              <option value={DEFAULTS.wastePct} selected>10%</option>
+              <option value="0.2">20%</option>
+            </select>
+          </label>
 
-    <hr class={styles.hr} />
+          <label class={styles.label}>
+            Cerveja (por adulto)
+            <select class={styles.input} data-beer-profile>
+              <option value="none">Sem álcool</option>
+              <option value="light">Leve</option>
+              <option value="medium" selected>Médio</option>
+              <option value="heavy">Alto</option>
+            </select>
+          </label>
 
-    <div class={styles.row}><span>Cerveja</span><span data-beer-out>-</span></div>
-    <div class={styles.row}><span>Refri/Água</span><span data-soda-out>-</span></div>
+          <label class={styles.toggleInline}>
+            <input data-include-soda type="checkbox" checked />
+            Incluir refri/água
+          </label>
+        </div>
+      </div>
+
+      <div class={`${styles.card} ${styles.results}`} data-results-box hidden>
+        <strong>Resultado</strong>
+
+        <div class={styles.row}><span>Carne (total)</span><span data-meat-out>-</span></div>
+        <div class={styles.breakdown} data-meat-breakdown></div>
+
+        <hr class={styles.hr} />
+
+        <div class={styles.row}><span>Pão de alho</span><span data-bread-out>-</span></div>
+        <div class={styles.row}><span>Carvão</span><span data-coal-out>-</span></div>
+        <div class={styles.row}><span>Sal grosso</span><span data-salt-out>-</span></div>
+
+        <hr class={styles.hr} />
+
+        <div class={styles.row}><span>Cerveja</span><span data-beer-out>-</span></div>
+        <div class={styles.row}><span>Refri/Água</span><span data-soda-out>-</span></div>
+      </div>
+    </div>
   </div>
-</section>
 
-<script>
-  import initBbqCalculator from "../scripts/barbecueCalculator.js";
+  <script>
+    import initBbqCalculator from "../scripts/barbecueCalculator.js";
 
-  const boot = () => initBbqCalculator();
-
-  // 1) primeiro carregamento
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot, { once: true });
-  } else {
+    const boot = () => initBbqCalculator();
+    document.addEventListener("astro:page-load", boot);
     boot();
-  }
-
-  // 2) se você usar navegação do Astro (transitions), garante re-init
-  document.addEventListener("astro:page-load", boot);
-</script>
+  </script>
+</section>

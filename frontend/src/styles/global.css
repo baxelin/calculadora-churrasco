@@ -2,7 +2,7 @@
   --bg1:#ff4fd8;
   --bg2:#00e5ff;
   --bg3:#ffe600;
-  --ink:#1b1b1b;
+  --ink:#141414;
 }
 
 *{ box-sizing:border-box; }
@@ -12,7 +12,6 @@ body{
   font-family: system-ui, Arial, sans-serif;
   color: var(--ink);
 
-  /* fundo: gradiente + “bolinhas” + animação */
   background:
     radial-gradient(circle at 15% 20%, rgba(255,255,255,.55) 0 12px, transparent 13px) 0 0/64px 64px,
     radial-gradient(circle at 70% 60%, rgba(255,255,255,.35) 0 10px, transparent 11px) 0 0/72px 72px,
@@ -28,7 +27,13 @@ body{
 }
 
 .container{
-  max-width: 980px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 14px;
+}
+
+/* sem scroll da página no desktop */
+@media (min-width: 980px){
+  body{ overflow:hidden; }
+  .container{ height: 100vh; }
 }

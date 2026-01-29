@@ -161,11 +161,11 @@ let li = 0;
     </div>
   </div>
 
-  <script>
-    import initBbqCalculator from "../scripts/barbecueCalculator.js";
+<script>
+  import initBbqCalculator from "../scripts/barbecueCalculator.js";
+  const boot = () => initBbqCalculator();
+  document.addEventListener("astro:page-load", boot);
+  boot();
+</script>
 
-    const boot = () => initBbqCalculator();
-    document.addEventListener("astro:page-load", boot);
-    boot();
-  </script>
 </section>

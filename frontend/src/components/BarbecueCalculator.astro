@@ -5,7 +5,7 @@ import { DURATION_RULES, MEATS, DEFAULTS } from "../config/bbqConfig.js";
 type Meat = { id: string; label: string; defaultWeight: number; group?: string };
 const meats = MEATS as unknown as Meat[];
 
-const titleText = "Calculadora de Churrasco";
+const titleText = "Calculadora de Churrasco 2000";
 const titleChars = [...titleText];
 const lettersOnly = titleChars.filter((c) => c !== " ");
 const max = Math.max(1, lettersOnly.length - 1);

@@ -1,31 +1,46 @@
-.title { margin: 0 0 16px; }
-
-.card {
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.grid {
+.grid2 {
+  margin-top: 12px;
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
 }
 
-.label { display: grid; gap: 6px; }
+.meats { margin-top: 16px; display: grid; gap: 10px; }
+.meatsHeader { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.meatsHint { font-size: 12px; opacity: 0.8; }
 
-.input { padding: 10px; font-size: 16px; }
+.meatRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+}
 
-.toggles { margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.meatWeightLabel { display: grid; gap: 6px; min-width: 120px; }
+.inputSmall { padding: 8px; font-size: 14px; }
 
-.toggle { display: flex; align-items: center; gap: 8px; }
+.breakdown {
+  margin-top: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px dashed #eee;
+  border-radius: 10px;
+}
 
-.results { margin-top: 16px; display: grid; gap: 8px; }
-
-.row { display: flex; justify-content: space-between; gap: 12px; }
-
-.hr { border: none; border-top: 1px solid #eee; margin: 12px 0; }
+.breakdown [data-row] {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
 
 @media (max-width: 720px) {
-  .grid { grid-template-columns: 1fr; }
+  .grid2 { grid-template-columns: 1fr; }
+  .meatsHeader { flex-direction: column; align-items: flex-start; }
+  .meatRow { flex-direction: column; align-items: stretch; }
+  .meatWeightLabel { min-width: auto; }
 }

@@ -1,5 +1,6 @@
 ---
 import styles from "../styles/calculator.module.css";
+import { DURATION_RULES, MEATS, DEFAULTS } from "../config/bbqConfig.js";
 ---
 
 <h1 class={styles.title}>Calculadora de Churrasco</h1>
@@ -19,17 +20,31 @@ import styles from "../styles/calculator.module.css";
     <label class={styles.label}>
       Duração
       <select class={styles.input} data-hours>
-        <option value="4">Até 4h</option>
-        <option value="6">Até 6h</option>
-        <option value="8">8h ou mais</option>
+        {DURATION_RULES.map((r) => (
+          <option value={r.id}>{r.label}</option>
+        ))}
       </select>
     </label>
   </div>
 
-  <div class={styles.toggles}>
-    <label class={styles.toggle}>
-      <input data-include-beer type="checkbox" checked />
-      Incluir cerveja
+  <div class={styles.grid2}>
+    <label class={styles.label}>
+      Margem de sobra
+      <select class={styles.input} data-waste>
+        <option value="0">0%</option>
+        <option value={DEFAULTS.wastePct} selected>10%</option>
+        <option value="0.2">20%</option>
+      </select>
+    </label>
+
+    <label class={styles.label}>
+      Consumo de cerveja (por adulto)
+      <select class={styles.input} data-beer-profile>
+        <option value="none">Sem álcool</option>
+        <option value="light">Leve</option>
+        <option value="medium" selected>Médio</option>
+        <option value="heavy">Alto</option>
+      </select>
     </label>
 
     <label class={styles.toggle}>
@@ -38,10 +53,46 @@ import styles from "../styles/calculator.module.css";
     </label>
   </div>
 
+  <div class={styles.meats}>
+    <div class={styles.meatsHeader}>
+      <strong>Tipos de carne</strong>
+      <span class={styles.meatsHint}>Marque e ajuste o “peso” pra dividir os kg</span>
+    </div>
+
+    {MEATS.map((m) => (
+      <div class={styles.meatRow}>
+        <label class={styles.toggle}>
+          <input type="checkbox" data-meat-check value={m.id} checked />
+          {m.label}
+        </label>
+
+        <label class={styles.meatWeightLabel}>
+          Peso
+          <input
+            class={`${styles.input} ${styles.inputSmall}`}
+            data-meat-weight
+            data-meat-id={m.id}
+            type="number"
+            min="0"
+            step="1"
+            value={m.defaultWeight}
+          />
+        </label>
+      </div>
+    ))}
+  </div>
+
   <div class={`${styles.card} ${styles.results}`}>
     <strong>Resultado</strong>
 
     <div class={styles.row}><span>Carne (total)</span><span data-meat-out>-</span></div>
+
+    <div class={styles.breakdown} data-meat-breakdown>
+      <!-- preenchido via JS -->
+    </div>
+
+    <hr class={styles.hr} />
+
     <div class={styles.row}><span>Pão de alho</span><span data-bread-out>-</span></div>
     <div class={styles.row}><span>Carvão</span><span data-coal-out>-</span></div>
     <div class={styles.row}><span>Sal grosso</span><span data-salt-out>-</span></div>
@@ -54,6 +105,17 @@ import styles from "../styles/calculator.module.css";
 </section>
 
 <script>
-  import initBbqCalculator from "../scripts/BarbecueCalculator.js";
-  initBbqCalculator();
+  import initBbqCalculator from "../scripts/barbecueCalculator.js";
+
+  const boot = () => initBbqCalculator();
+
+  // 1) primeiro carregamento
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot, { once: true });
+  } else {
+    boot();
+  }
+
+  // 2) se você usar navegação do Astro (transitions), garante re-init
+  document.addEventListener("astro:page-load", boot);
 </script>

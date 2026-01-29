@@ -1,15 +1,9 @@
-/* ===== TÍTULO (onda + gradiente) ===== */
 .title{
   margin: 0 0 10px;
   font-size: clamp(32px, 4vw, 52px);
   font-weight: 1000;
   letter-spacing: -1px;
   line-height: 1.05;
-
-  background: linear-gradient(90deg, #ff6a00 0%, #ff00c8 45%, #00e5ff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 
   filter:
     drop-shadow(4px 4px 0 rgba(255,255,255,.90))
@@ -21,7 +15,20 @@
   transform-origin: 50% 85%;
   animation: waveScale 1.25s ease-in-out infinite;
   animation-delay: calc(var(--i) * 0.06s);
+
+  background: linear-gradient(90deg, #ff6a00 0%, #ff00c8 50%, #00e5ff 100%);
+  background-size: 600% 100%;
+  background-position: var(--p) 50%;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  /* contorno/impacto */
+  -webkit-text-stroke: 1px rgba(0,0,0,.85);
+  text-shadow: 2px 2px 0 rgba(0,0,0,.25);
 }
+
 .space{ display:inline-block; width:.35em; }
 
 @keyframes waveScale{
@@ -516,3 +523,15 @@ input[type="number"]::-webkit-outer-spin-button{
 .app[data-state="done"] .actions{ display: none; }
 
 .app[data-state="done"] [data-hint]{ display: none; }
+
+/* título centralizado só no idle */
+.app[data-state="idle"] .title{
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* no done volta ao normal (alinhado à esquerda) */
+.app[data-state="done"] .title{
+  text-align: left;
+}

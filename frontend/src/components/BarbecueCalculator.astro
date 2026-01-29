@@ -7,19 +7,24 @@ const meats = MEATS as unknown as Meat[];
 
 const titleText = "Calculadora de Churrasco";
 const titleChars = [...titleText];
+const lettersOnly = titleChars.filter((c) => c !== " ");
+const max = Math.max(1, lettersOnly.length - 1);
+let li = 0;
 ---
 
-<h1 class={styles.title} aria-label={titleText}>
-  {titleChars.map((ch, i) =>
-    ch === " " ? (
-      <span class={styles.space}>&nbsp;</span>
-    ) : (
-      <span class={styles.letter} style={`--i:${i}`}>{ch}</span>
-    )
-  )}
-</h1>
-
 <section class={styles.app} data-bbq-calculator data-state="idle">
+  <h1 class={styles.title} aria-label={titleText}>
+    {titleChars.map((ch, i) =>
+      ch === " " ? (
+        <span class={styles.space}>&nbsp;</span>
+      ) : (
+        <span class={styles.letter} style={`--i:${i};--p:${/* seu --p atual */ ""}`}>{ch}</span>
+      )
+    )}
+  </h1>
+
+  <!-- overlay loader e resto do conteúdo continuam aqui -->
+
   <!-- Overlay do loader (central) -->
   <div class={styles.loaderOverlay} data-loader-overlay hidden>
     <div class={styles.loaderCard}>

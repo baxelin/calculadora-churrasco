@@ -144,25 +144,30 @@ function initOne(root) {
     lines.push(`Pessoas: ${payload.adults} adultos, ${payload.kids} crianças`);
     lines.push(`Duração: ${payload.durationLabel}`);
     lines.push("");
-
     lines.push(`🥩 Carne (total): ${payload.meatTotal}`);
     if (payload.meatLines.length) {
       lines.push("Divisão:");
       payload.meatLines.forEach((l) => lines.push(`- ${l}`));
     }
     lines.push("");
-
     lines.push("Extras:");
     lines.push(`- Pão de alho: ${payload.bread}`);
     lines.push(`- Carvão: ${payload.coal}`);
     lines.push(`- Sal grosso: ${payload.salt}`);
     lines.push("");
-
     lines.push("Bebidas:");
     lines.push(`- Cerveja: ${payload.beer}`);
     lines.push(`- Refri/Água: ${payload.soda}`);
     lines.push("");
     lines.push("Estimativa marota. Ajuste conforme a fome do pessoal 😋");
+
+    lines.push("");
+    lines.push("🔗 Link da calculadora:");
+    lines.push("https://calculadora-churrasco-2000.vercel.app/");
+    lines.push("");
+    lines.push("👨‍💻 GitHub:");
+    lines.push("https://github.com/baxelin");
+    // <<<
 
     return lines.join("\n");
   }
@@ -317,7 +322,7 @@ function initOne(root) {
 
   waBtn.addEventListener("click", () => {
     if (!lastShareText) return;
-    const url = `https://wa.me/?text=${encodeURIComponent(lastShareText)}`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(lastShareText)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   });
 

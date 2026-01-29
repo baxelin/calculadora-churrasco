@@ -594,3 +594,9 @@ input[type="number"]::-webkit-outer-spin-button{
   20%{ opacity: 1; }
   100%{ opacity: 0; transform: translateY(18px); }
 }
+
+.waIcon{
+  display:inline-flex;
+  vertical-align: middle;
+  margin-right: 8px;
+}

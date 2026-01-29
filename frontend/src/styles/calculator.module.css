@@ -535,3 +535,62 @@ input[type="number"]::-webkit-outer-spin-button{
 .app[data-state="done"] .title{
   text-align: left;
 }
+
+.shareBar{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap: wrap;
+}
+
+.shareBtn{
+  cursor:pointer;
+  border: 3px solid rgba(0,0,0,.9);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 1000;
+  background: rgba(255,255,255,.9);
+  box-shadow: 6px 6px 0 rgba(0,0,0,.12);
+}
+
+.shareBtnHot{
+  background: linear-gradient(90deg, #25D366, #1fa855);
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.45);
+}
+
+.toast{
+  font-weight: 1000;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 3px solid rgba(0,0,0,.85);
+  background: rgba(255,230,0,.7);
+}
+
+.disclaimer{
+  margin-top: 10px;
+  font-weight: 900;
+  opacity: .85;
+  font-size: 13px;
+}
+
+/* confetti simples */
+.results{ position: relative; overflow: hidden; }
+.results[data-confetti="1"]::after{
+  content:"";
+  position:absolute;
+  inset:-20px;
+  pointer-events:none;
+  opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255,0,200,.55) 0 4px, transparent 5px) 0 0/60px 60px,
+    radial-gradient(circle, rgba(0,229,255,.55) 0 4px, transparent 5px) 20px 10px/70px 70px,
+    radial-gradient(circle, rgba(255,230,0,.65) 0 4px, transparent 5px) 10px 30px/65px 65px;
+  animation: confettiPop .9s ease-out forwards;
+}
+
+@keyframes confettiPop{
+  0%{ opacity: 0; transform: translateY(-10px); }
+  20%{ opacity: 1; }
+  100%{ opacity: 0; transform: translateY(18px); }
+}

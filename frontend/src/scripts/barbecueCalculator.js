@@ -16,6 +16,9 @@ function fmtLiters(ml) {
 function getRule(hoursId) {
   return DURATION_RULES.find((r) => r.id === String(hoursId)) ?? DURATION_RULES[0];
 }
+function getDurationLabel(hoursId) {
+  return getRule(hoursId)?.label ?? String(hoursId);
+}
 
 function getSelectedMeats(root) {
   const checks = [...root.querySelectorAll("[data-meat-check]")];
@@ -32,6 +35,28 @@ function getSelectedMeats(root) {
 
   const sum = rows.reduce((acc, r) => acc + r.weight, 0) || 1;
   return rows.map((r) => ({ ...r, share: r.weight / sum }));
+}
+
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // fallback antigo
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
 }
 
 function initOne(root) {
@@ -66,6 +91,10 @@ function initOne(root) {
   const fillEl = q("[data-progress-fill]");
   const pctEl = q("[data-progress-pct]");
 
+  const copyBtn = q("[data-copy-btn]");
+  const waBtn = q("[data-wa-btn]");
+  const toast = q("[data-toast]");
+
   const required = [
     appGrid, loaderOverlay,
     adultsEl, kidsEl, hoursEl,
@@ -74,6 +103,7 @@ function initOne(root) {
     meatOut, breakdownEl, breadOut, coalOut, saltOut, beerOut, sodaOut,
     resultsBox, advancedBox,
     emojiRow, bigEmoji, fillEl, pctEl,
+    copyBtn, waBtn, toast,
   ];
 
   if (required.some((x) => !x)) {
@@ -82,6 +112,7 @@ function initOne(root) {
   }
 
   let state = "idle";
+  let lastShareText = "";
 
   function renderEmojiRow() {
     emojiRow.innerHTML = EMOJI_SEGMENTS.map((e, i) => {
@@ -106,6 +137,36 @@ function initOne(root) {
     });
   }
 
+  function buildShareText(payload) {
+    const lines = [];
+    lines.push("🔥 Calculadora de Churrasco 2000");
+    lines.push("");
+    lines.push(`Pessoas: ${payload.adults} adultos, ${payload.kids} crianças`);
+    lines.push(`Duração: ${payload.durationLabel}`);
+    lines.push("");
+
+    lines.push(`🥩 Carne (total): ${payload.meatTotal}`);
+    if (payload.meatLines.length) {
+      lines.push("Divisão:");
+      payload.meatLines.forEach((l) => lines.push(`- ${l}`));
+    }
+    lines.push("");
+
+    lines.push("Extras:");
+    lines.push(`- Pão de alho: ${payload.bread}`);
+    lines.push(`- Carvão: ${payload.coal}`);
+    lines.push(`- Sal grosso: ${payload.salt}`);
+    lines.push("");
+
+    lines.push("Bebidas:");
+    lines.push(`- Cerveja: ${payload.beer}`);
+    lines.push(`- Refri/Água: ${payload.soda}`);
+    lines.push("");
+    lines.push("Estimativa marota. Ajuste conforme a fome do pessoal 😋");
+
+    return lines.join("\n");
+  }
+
   function calc() {
     const adults = Math.max(0, Number(adultsEl.value || 0));
     const kids = Math.max(0, Number(kidsEl.value || 0));
@@ -115,15 +176,19 @@ function initOne(root) {
     const baseMeatG = adults * rule.meatAdult + kids * rule.meatKid;
     const totalMeatG = Math.round(baseMeatG * (1 + wastePct));
 
-    meatOut.textContent = fmtKg(totalMeatG);
+    const meatTotalText = fmtKg(totalMeatG);
+    meatOut.textContent = meatTotalText;
 
     const selected = getSelectedMeats(root);
+    let meatLines = [];
     if (selected.length === 0) {
       breakdownEl.innerHTML = `<div data-row><span>Nenhuma carne selecionada</span><span>—</span></div>`;
     } else {
       breakdownEl.innerHTML = selected
         .map((m) => {
           const grams = Math.round(totalMeatG * m.share);
+          const line = `${m.label}: ${fmtKg(grams)}`;
+          meatLines.push(line);
           return `<div data-row><span>${m.label}</span><span>${fmtKg(grams)}</span></div>`;
         })
         .join("");
@@ -133,23 +198,43 @@ function initOne(root) {
     const coalKg = Math.max(DEFAULTS.coalMinKg, (totalMeatG / 1000) * DEFAULTS.coalKgPerMeatKg);
     const saltG = Math.max(DEFAULTS.saltMinG, (totalMeatG / 1000) * DEFAULTS.saltGPerMeatKg);
 
-    breadOut.textContent = fmtUnit(bread, "un");
-    coalOut.textContent = coalKg.toFixed(1).replace(".", ",") + " kg";
-    saltOut.textContent = Math.ceil(saltG) + " g";
+    const breadText = fmtUnit(bread, "un");
+    const coalText = coalKg.toFixed(1).replace(".", ",") + " kg";
+    const saltText = Math.ceil(saltG) + " g";
 
-    const beerProfile = beerProfileEl.value; // none/light/medium/heavy
-    if (beerProfile === "none") {
-      beerOut.textContent = "—";
-    } else {
+    breadOut.textContent = breadText;
+    coalOut.textContent = coalText;
+    saltOut.textContent = saltText;
+
+    const beerProfile = beerProfileEl.value;
+    let beerText = "—";
+    if (beerProfile !== "none") {
       const beerMl = adults * (rule.beerAdultMl[beerProfile] || 0);
       const cans = Math.ceil(beerMl / BEER_CAN_ML);
-      beerOut.textContent = `${fmtLiters(beerMl)} (~${cans} latas de 350ml)`;
+      beerText = `${fmtLiters(beerMl)} (~${cans} latas de 350ml)`;
     }
+    beerOut.textContent = beerText;
 
     const people = adults + kids;
     const sodaMl = includeSodaEl.checked ? people * rule.sodaPersonMl : 0;
-    sodaOut.textContent = includeSodaEl.checked ? fmtLiters(sodaMl) : "—";
+    const sodaText = includeSodaEl.checked ? fmtLiters(sodaMl) : "—";
+    sodaOut.textContent = sodaText;
 
+    // texto pra copiar/whatsapp
+    lastShareText = buildShareText({
+      adults,
+      kids,
+      durationLabel: getDurationLabel(hoursEl.value),
+      meatTotal: meatTotalText,
+      meatLines,
+      bread: breadText,
+      coal: coalText,
+      salt: saltText,
+      beer: beerText,
+      soda: sodaText,
+    });
+
+    // anim “pop”
     resultsBox.dataset.pulse = "1";
     window.clearTimeout(resultsBox._pulseTimer);
     resultsBox._pulseTimer = window.setTimeout(() => delete resultsBox.dataset.pulse, 220);
@@ -182,9 +267,12 @@ function initOne(root) {
     resultsBox.hidden = false;
 
     setInputsDisabled(false);
-    calcBtn.textContent = "Recalcular! 🥩";
+    calcBtn.hidden = true; // some depois do primeiro cálculo
 
-    calcBtn.hidden = true;
+    // confetti rápido
+    resultsBox.dataset.confetti = "1";
+    window.clearTimeout(resultsBox._confTimer);
+    resultsBox._confTimer = window.setTimeout(() => delete resultsBox.dataset.confetti, 900);
 
     calc();
   }
@@ -192,23 +280,18 @@ function initOne(root) {
   function startLoading() {
     if (state === "loading") return;
 
+    const firstTime = (state === "idle");
     state = "loading";
     root.dataset.state = "loading";
 
-    // some tudo, aparece loader central
-    const firstTime = (state === "idle");
-
-    // 1º cálculo: some tudo como você queria
+    // primeiro cálculo: some tudo e mostra loader central
     appGrid.hidden = firstTime;
-
-    // recálculo: não some o app, só mostra overlay por cima
     loaderOverlay.hidden = false;
-
 
     setInputsDisabled(true);
     setProgress(0);
 
-    const durationMs = 4000;
+    const durationMs = 2400; // mais lento
     const start = performance.now();
 
     const tick = (now) => {
@@ -222,6 +305,22 @@ function initOne(root) {
     requestAnimationFrame(tick);
   }
 
+  // share buttons
+  copyBtn.addEventListener("click", async () => {
+    if (!lastShareText) return;
+    const ok = await copyToClipboard(lastShareText);
+    toast.textContent = ok ? "Copiado!" : "Não consegui copiar 😅";
+    toast.hidden = false;
+    window.clearTimeout(toast._t);
+    toast._t = window.setTimeout(() => (toast.hidden = true), 1200);
+  });
+
+  waBtn.addEventListener("click", () => {
+    if (!lastShareText) return;
+    const url = `https://wa.me/?text=${encodeURIComponent(lastShareText)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  });
+
   // init
   renderEmojiRow();
   setProgress(0);
@@ -229,7 +328,7 @@ function initOne(root) {
 
   calcBtn.addEventListener("click", startLoading);
 
-  // após calcular, qualquer mudança recalcula sem loader
+  // após calcular, qualquer mudança recalcula automático
   root.querySelectorAll("input, select").forEach((el) => {
     el.addEventListener("input", () => state === "done" && calc());
     el.addEventListener("change", () => state === "done" && calc());

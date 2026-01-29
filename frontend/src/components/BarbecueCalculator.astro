@@ -157,6 +157,18 @@ let li = 0;
 
         <div class={styles.row}><span>Cerveja</span><span data-beer-out>-</span></div>
         <div class={styles.row}><span>Refri/Água</span><span data-soda-out>-</span></div>
+
+        <hr class={styles.hr} />
+
+        <div class={styles.shareBar}>
+          <button type="button" class={styles.shareBtn} data-copy-btn>Copiar lista 📋</button>
+          <button type="button" class={`${styles.shareBtn} ${styles.shareBtnHot}`} data-wa-btn>Mandar no WhatsApp 💚</button>
+          <span class={styles.toast} data-toast hidden>Copiado!</span>
+        </div>
+
+        <div class={styles.disclaimer}>
+          Estimativa marota. Ajuste conforme a fome do pessoal 😋
+        </div>
       </div>
     </div>
   </div>

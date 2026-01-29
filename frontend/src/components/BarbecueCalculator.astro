@@ -1,9 +1,20 @@
 ---
 import styles from "../styles/calculator.module.css";
 import { DURATION_RULES, MEATS, DEFAULTS } from "../config/bbqConfig.js";
+
+const titleText = "Calculadora de Churrasco";
+const titleChars = [...titleText];
 ---
 
-<h1 class={styles.title}>Calculadora de Churrasco</h1>
+<h1 class={styles.title} aria-label={titleText}>
+  {titleChars.map((ch, i) =>
+    ch === " " ? (
+      <span class={styles.space}>&nbsp;</span>
+    ) : (
+      <span class={styles.letter} style={`--i:${i}`}>{ch}</span>
+    )
+  )}
+</h1>
 
 <section class={styles.card} data-bbq-calculator>
   <div class={styles.grid}>

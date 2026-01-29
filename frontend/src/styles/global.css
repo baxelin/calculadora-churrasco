@@ -32,8 +32,9 @@ body{
   padding: 14px;
 }
 
-/* sem scroll da página no desktop */
-@media (min-width: 980px){
+/* sem scroll da página só em telas GRANDES */
+@media (min-width: 1110px){
   body{ overflow:hidden; }
   .container{ height: 100vh; }
 }
+

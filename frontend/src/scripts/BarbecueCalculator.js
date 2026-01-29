@@ -167,6 +167,9 @@ function initOne(root) {
     appGrid.hidden = false;
     advancedBox.hidden = true;
     resultsBox.hidden = true;
+
+    calcBtn.hidden = false;
+    calcBtn.textContent = "Calcular! 🥩";
   }
 
   function goDone() {
@@ -180,6 +183,8 @@ function initOne(root) {
 
     setInputsDisabled(false);
     calcBtn.textContent = "Recalcular! 🥩";
+
+    calcBtn.hidden = true;
 
     calc();
   }
@@ -203,7 +208,7 @@ function initOne(root) {
     setInputsDisabled(true);
     setProgress(0);
 
-    const durationMs = 1200;
+    const durationMs = 4000;
     const start = performance.now();
 
     const tick = (now) => {

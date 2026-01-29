@@ -433,3 +433,86 @@ input[type="number"]::-webkit-outer-spin-button{
 .app[data-state="done"] .card{
   padding: 10px;
 }
+
+/* =========================
+   RESPONSIVIDADE FINAL
+   >=1110px: mantém como está (2 colunas no DONE)
+   721-1109px: 1 coluna mesmo no DONE (evita quebrar)
+   <=720px: mobile 1 coluna + scroll da página
+========================= */
+
+/* TABLET: 721–1109 */
+@media (min-width: 721px) and (max-width: 1109px){
+  /* no DONE vira 1 coluna */
+  .app[data-state="done"] .appGrid{
+    grid-template-columns: 1fr;
+    max-width: 900px;
+  }
+
+  /* direita vira seção abaixo (sem sobrepor) */
+  .right{
+    display: grid;
+    gap: 12px;
+  }
+
+  /* remove limites/scroll interno: deixa fluir */
+  .left, .right{
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* carnes continuam 2 colunas (ainda cabe) */
+  .meatGrid{
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* MOBILE: <=720 */
+@media (max-width: 720px){
+  /* no mobile tem scroll normal */
+  .app{
+    height: auto;
+  }
+
+  /* 1 coluna em qualquer estado */
+  .appGrid{
+    grid-template-columns: 1fr !important;
+    max-width: 100% !important;
+  }
+
+  /* mostra a direita no DONE, mas como bloco abaixo */
+  .right{
+    display: grid;
+    gap: 12px;
+  }
+
+  /* remove scroll interno */
+  .left, .right{
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* inputs um pouco menores no mobile */
+  .input{
+    height: 40px;
+    padding: 8px 10px;
+    font-size: 15px;
+  }
+
+  /* carnes em 1 coluna */
+  .meatGrid{
+    grid-template-columns: 1fr;
+    padding-right: 0;
+  }
+
+  /* botão não precisa sticky no mobile (senão atrapalha) */
+  .actions{
+    position: static;
+    background: transparent;
+    padding-top: 0;
+  }
+}
+
+.app[data-state="done"] .actions{ display: none; }
+
+.app[data-state="done"] [data-hint]{ display: none; }
